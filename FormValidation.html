@@ -1,0 +1,122 @@
+<!--
+Create a form with two input input elements "First Name", "Last Name" and a "Submit" button. Have the contents center aligned. Once the form is submitted, do validation if both fields are filled, if not throw an error. If both values are entered then display them below the form.
+-->
+<html>
+  <head>
+    <link rel="stylesheet" href="https://bootswatch.com/4/cosmo/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.21.1/babel.min.js"></script>
+  </head>
+      <body>
+    <div id="app" align="center">
+    </div>
+    <script type="text/babel">
+      class Form extends React.Component {
+    constructor(props){
+        super(props)
+        this.state = {
+            first: "",
+            last: "",
+            isSubmitted: false
+        };
+    }
+
+    onChangeEdit = e => {
+        this.setState({[e.target.name]: e.target.value})
+
+        this.showInputError(e.target.name);
+    }
+
+    onSubmit = e => {
+        e.preventDefault();
+
+        if (!this.showFormErrors()){
+            alert("Invalid form. Not submitted");
+        }else{
+            alert("Valid form. Submitted");
+        }
+        this.setState({isSubmitted: true});
+    }
+
+    showFormErrors(){
+        const inputs = document.querySelectorAll('input');
+        let isFormValid = true;
+
+        inputs.forEach(input => {
+            input.classList.add('active');
+            if(input.className == 'form-group') {
+                const isInputValid = this.showInputError(input.name);
+
+                if(!isInputValid){
+                    isFormValid = false;
+                }
+            }
+        });
+        return isFormValid;
+    }
+
+    showInputError(refName) {
+        const validity = this.refs[refName].validity;
+        const label = document.getElementById(`${refName}Label`).textContent;
+        const error = document.getElementById(`${refName}Error`);
+        const firstName = refName.indexOf('first') !== -1;
+
+
+        if (!validity.valid) {
+            if (validity.valueMissing) {
+                error.textContent = `${label} is a required field`;
+            }else if (firstName && validity.patternMismatch) {
+                error.textContent = `${label} should be longer than 2 chars`;
+            }
+            return false;
+        }
+
+        error.textContent = '';
+        return true;
+    }
+
+
+    render() {
+        const {first,last} = this.state;
+        return(
+            <div className="card card-body" align="center">
+                <form onSubmit={this.onSubmit}>
+                    <div className="form-group">
+                        <label id="firstLabel">First Name</label>
+                        <input className="form-control"
+                               type="text"
+                               name="first"
+                               ref="first"
+                               value={this.state.first}
+                               pattern=".{2,}"
+                               onChange={this.onChangeEdit}
+                               required />
+                        <div className="error" id="firstError" />
+
+                        <label id="lastLabel">Last Name</label>
+                        <input className="form-control"
+                               type="text"
+                               name="last"
+                               ref="last"
+                               value={this.state.last}
+                               onChange={this.onChangeEdit}
+                               required />
+                        <div className="error" id="lastError" />
+                    </div>
+                    <button className="btn btn-primary" type="submit">Submit</button>
+                    <h1>{this.state.isSubmitted && "Result: " + this.state.first + " " + this.state.last}</h1>
+                    {!this.state.isSubmitted}
+                </form>
+
+            </div>
+        )
+    }
+}
+      ReactDOM.render(<Form />, document.getElementById('app'));
+
+    </script>
+
+
+  </body>
+</html>
